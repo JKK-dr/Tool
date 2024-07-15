@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 
+# 根据x、y来预测高度z
 
 class HeightMLP(nn.Module):
     def __init__(self, num_encoding, num_width):
