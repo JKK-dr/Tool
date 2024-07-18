@@ -1,4 +1,4 @@
-# 代码来自https://github.com/PJLab-ADG/SensorsCalibration的lidar2camera部分（auto_calib）,可用于点云数据预处理
+// 代码来自https://github.com/PJLab-ADG/SensorsCalibration的lidar2camera部分（auto_calib）,可用于点云数据预处理
 void Calibrator::Segment_pc(const pcl::PointCloud<pcl::PointXYZI>::Ptr cloud,
                             pcl::PointCloud<pcl::Normal>::Ptr normals,
                             std::vector<pcl::PointIndices> &seg_indices)
