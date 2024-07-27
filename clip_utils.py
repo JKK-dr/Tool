@@ -263,6 +263,31 @@ def get_lseg_score(
 
     return scores_list
 
+def _init_clip(self, clip_version="ViT-B/32"):
+        if hasattr(self, "clip_model"):
+            print("clip model is already initialized")
+            return
+        if torch.cuda.is_available():
+            self.device = "cuda"
+        elif torch.backends.mps.is_available():
+            self.device = "mps"
+        else:
+            self.device = "cpu"
+        self.clip_version = clip_version
+        self.clip_feat_dim = {
+            "RN50": 1024,
+            "RN101": 512,
+            "RN50x4": 640,
+            "RN50x16": 768,
+            "RN50x64": 1024,
+            "ViT-B/32": 512,
+            "ViT-B/16": 512,
+            "ViT-L/14": 768,
+        }[self.clip_version]
+        print("Loading CLIP model...")
+        self.clip_model, self.preprocess = clip.load(self.clip_version)  # clip.available_models()
+        self.clip_model.to(self.device).eval()
+
 def get_img_feats(img, preprocess, clip_model):
     """
     Get the image features from the CLIP model
