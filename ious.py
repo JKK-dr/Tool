@@ -176,15 +176,6 @@ def compute_3d_giou_accurate(obj1, obj2):
     '''
     import pytorch3d.ops as ops
     
-    # This is too slow
-    # bbox1 = pcd1.get_minimal_oriented_bounding_box()
-    # bbox2 = pcd2.get_minimal_oriented_bounding_box()
-    
-    # This is still slow ... 
-    # Moved it outside of this function so that it is computed less times
-    # bbox1 = pcd1.get_oriented_bounding_box()
-    # bbox2 = pcd2.get_oriented_bounding_box()
-    
     bbox1 = obj1['bbox']
     bbox2 = obj2['bbox']
     pcd1 = obj1['pcd']
@@ -231,6 +222,37 @@ def compute_3d_giou_accurate(obj1, obj2):
     # o3d.visualization.draw_geometries([
     #     pcd1, pcd2, bbox1, bbox2
     # ])
+    
+    return giou
+
+def compute_3d_giou_accurate_batch(bbox1: torch.Tensor, bbox2: torch.Tensor) -> torch.Tensor:
+    '''
+    Compute Generalized IoU between two sets of oriented (or axis-aligned) 3D bounding boxes.
+    
+    bbox1: (M, 8, D), e.g. (M, 8, 3)
+    bbox2: (N, 8, D), e.g. (N, 8, 3)
+    
+    returns: (M, N)
+    '''
+    # Must expend the box beforehand, otherwise it may results overestimated results
+    bbox1 = expand_3d_box(bbox1, 0.02)
+    bbox2 = expand_3d_box(bbox2, 0.02)
+    
+    bbox1_vol = compute_3d_box_volume_batch(bbox1)
+    bbox2_vol = compute_3d_box_volume_batch(bbox2)
+    
+    import pytorch3d.ops as ops
+
+    inter_vol, iou = ops.box3d_overlap(
+        bbox1[:, [0, 2, 5, 3, 1, 7, 4, 6]].float(), 
+        bbox2[:, [0, 2, 5, 3, 1, 7, 4, 6]].float()
+    )
+    union_vol = bbox1_vol.unsqueeze(1) + bbox2_vol.unsqueeze(0) - inter_vol
+    
+    enclosing_vol = compute_enclosing_vol(bbox1, bbox2)
+    # enclosing_vol = compute_enclosing_vol_fast(bbox1, bbox2)
+    
+    giou = iou - (enclosing_vol - union_vol) / enclosing_vol
     
     return giou
 
@@ -351,37 +373,6 @@ def compute_enclosing_vol_fast(bbox1: torch.Tensor, bbox2: torch.Tensor) -> torc
     vol = enclosing_dims[:, :, 0] * enclosing_dims[:, :, 1] * enclosing_dims[:, :, 2] # (M, N)
 
     return vol
-
-def compute_3d_giou_accurate_batch(bbox1: torch.Tensor, bbox2: torch.Tensor) -> torch.Tensor:
-    '''
-    Compute Generalized IoU between two sets of oriented (or axis-aligned) 3D bounding boxes.
-    
-    bbox1: (M, 8, D), e.g. (M, 8, 3)
-    bbox2: (N, 8, D), e.g. (N, 8, 3)
-    
-    returns: (M, N)
-    '''
-    # Must expend the box beforehand, otherwise it may results overestimated results
-    bbox1 = expand_3d_box(bbox1, 0.02)
-    bbox2 = expand_3d_box(bbox2, 0.02)
-    
-    bbox1_vol = compute_3d_box_volume_batch(bbox1)
-    bbox2_vol = compute_3d_box_volume_batch(bbox2)
-    
-    import pytorch3d.ops as ops
-
-    inter_vol, iou = ops.box3d_overlap(
-        bbox1[:, [0, 2, 5, 3, 1, 7, 4, 6]].float(), 
-        bbox2[:, [0, 2, 5, 3, 1, 7, 4, 6]].float()
-    )
-    union_vol = bbox1_vol.unsqueeze(1) + bbox2_vol.unsqueeze(0) - inter_vol
-    
-    enclosing_vol = compute_enclosing_vol(bbox1, bbox2)
-    # enclosing_vol = compute_enclosing_vol_fast(bbox1, bbox2)
-    
-    giou = iou - (enclosing_vol - union_vol) / enclosing_vol
-    
-    return giou
 
 def compute_3d_contain_ratio_accurate_batch(bbox1: torch.Tensor, bbox2: torch.Tensor) -> torch.Tensor:
     '''
