@@ -2,9 +2,9 @@
 
 import numpy as np
 from tqdm import tqdm
-import mcts.mcts.utils as utils
+import utils as utils
 from collections import defaultdict
-from mcts.virtualhome.llm_policy import LLMPolicy
+import llm_policy import LLMPolicy
 
 DISCOUNT_FACTOR = 0.95
 
