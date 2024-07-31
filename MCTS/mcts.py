@@ -4,7 +4,7 @@ import numpy as np
 from tqdm import tqdm
 import utils
 from collections import defaultdict
-import llm_policy import LLMPolicy
+from llm_policy import LLMPolicy
 
 DISCOUNT_FACTOR = 0.95
 
