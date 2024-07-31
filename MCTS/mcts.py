@@ -2,7 +2,7 @@
 
 import numpy as np
 from tqdm import tqdm
-import utils as utils
+import utils
 from collections import defaultdict
 import llm_policy import LLMPolicy
 
