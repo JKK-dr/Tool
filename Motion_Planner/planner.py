@@ -1,6 +1,6 @@
 import torch
 import theseus as th
-from utils.train_utils import project_to_frenet_frame
+from train_utils import project_to_frenet_frame
 
 # 该类将非线性优化方法作为神经网络的某层，来实现优化目标函数的参数的目的（很棒的思路）
 
