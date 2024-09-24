@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-# 根据x、y来预测高度z
+# 根据x、y来预测高度z【使用正余位置编码来平滑高度变化】
 
 class HeightMLP(nn.Module):
     def __init__(self, num_encoding, num_width):
