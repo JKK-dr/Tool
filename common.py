@@ -3,7 +3,7 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-# 对图像应用仿射变换
+# 根据位姿得到仿射变换
 def get_grid(pose, grid_size, device):
     """
     Input:
